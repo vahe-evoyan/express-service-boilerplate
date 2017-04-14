@@ -1,0 +1,9 @@
+.DS_Store
+node_modules
+.tmp
+.idea
+config/local.env.js
+npm-debug.log
+coverage
+docs
+dist
