@@ -1,6 +1,6 @@
-/*eslint no-process-env:0*/
+/* eslint import/no-dynamic-require:0 global-require:0 */
 
-let base = {
+const base = {
   env: process.env.NODE_ENV,
 
   // Protocol
@@ -12,8 +12,10 @@ let base = {
   // Server port
   port: process.env.PORT || 9000,
 };
+
 // Export the config object based on the NODE_ENV
 // ==============================================
-const common = require('./common');
 const env = require(`./${process.env.NODE_ENV}.js`) || {};
+const common = require('./common');
+
 module.exports = {...base, ...common, ...env};

@@ -1,19 +1,21 @@
 import http from 'http';
 import express from 'express';
+import winston from 'winston';
 
 import config from './config/environment';
 
 // Setup server
-var app = express();
-var server = http.createServer(app);
+let app = express();
+const server = http.createServer(app);
 
 // Start server
 function startServer() {
   app.mainServer = server.listen(
     config.port, config.ip, () => {
-      console.log(
+      winston.info(
         'Server listening on %d, in %s mode',
-        config.port, app.get('env')
+        config.port,
+        app.get('env'),
       );
     });
 }
@@ -21,4 +23,4 @@ function startServer() {
 setImmediate(startServer);
 
 // Expose app
-exports = module.exports = app;
+module.exports = app;

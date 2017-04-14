@@ -1,3 +1,3 @@
 // Common configurations
 // =====================
-exports = module.exports = {};
+module.exports = {};
