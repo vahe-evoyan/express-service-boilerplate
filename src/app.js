@@ -8,6 +8,9 @@ import config from './config/environment';
 const app = express();
 const server = http.createServer(app);
 
+require('./config/express').default(app, server);
+require('./config/routes').default(app);
+
 // Start server
 function startServer() {
   app.mainServer = server.listen(
