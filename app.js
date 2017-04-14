@@ -5,7 +5,7 @@ import winston from 'winston';
 import config from './config/environment';
 
 // Setup server
-let app = express();
+const app = express();
 const server = http.createServer(app);
 
 // Start server
