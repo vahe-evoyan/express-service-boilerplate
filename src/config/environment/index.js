@@ -11,6 +11,13 @@ const base = {
 
   // Server port
   port: process.env.PORT || 9000,
+
+  sequelize: {
+    uri: process.env.DATABASE_URL || 'mysql://localhost/express_app',
+    options: {
+      dialect: 'mysql',
+    },
+  },
 };
 
 // Export the config object based on the NODE_ENV

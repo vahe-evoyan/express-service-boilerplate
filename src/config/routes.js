@@ -5,7 +5,9 @@ import {BaseApiError} from '../lib/errors';
 
 export default function(app) {
   const router = express.Router();
+  /* eslint-disable global-require */
   router.use('/users', require('../api/users'));
+  /* eslint-enable global-require */
   app.use('/api/v1', router);
 
   app.route('/*')

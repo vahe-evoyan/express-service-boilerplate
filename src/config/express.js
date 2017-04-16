@@ -3,8 +3,8 @@ import bodyParser from 'body-parser';
 import lusca from 'lusca';
 import cors from 'cors';
 
-export default function(app, server) {
-  var env = app.get('env');
+export default function(app) {
+  const env = app.get('env');
 
   app.use(cors());
   app.use(shrinkRay());
@@ -12,7 +12,7 @@ export default function(app, server) {
   app.use(bodyParser.json({
     verify(req, res, buf) {
       req.rawBody = buf;
-    }
+    },
   }));
 
   if (env !== 'test') {
@@ -21,9 +21,9 @@ export default function(app, server) {
       hsts: {
         maxAge: 31536000, // 1 year, in seconds
         includeSubDomains: true,
-        preload: true
+        preload: true,
       },
-      xssProtection: true
+      xssProtection: true,
     }));
   }
 }

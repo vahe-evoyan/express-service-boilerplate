@@ -3,6 +3,7 @@ import express from 'express';
 import winston from 'winston';
 
 import config from './config/environment';
+import database from './lib/database';
 
 // Setup server
 const app = express();
@@ -12,7 +13,7 @@ require('./config/express').default(app, server);
 require('./config/routes').default(app);
 
 // Start server
-function startServer() {
+database.sync().then(() => {
   app.mainServer = server.listen(
     config.port, config.ip, () => {
       winston.info(
@@ -21,9 +22,7 @@ function startServer() {
         app.get('env'),
       );
     });
-}
-
-setImmediate(startServer);
+});
 
 // Expose app
 module.exports = app;

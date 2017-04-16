@@ -25,7 +25,7 @@ export class BaseApiError extends ExtendableBuiltin(Error) {
   }
 
   toJSON() {
-    let obj = {
+    const obj = {
       name: this.name,
       status: this.status,
       message: this.message,
