@@ -1,9 +1,11 @@
+import _ from 'lodash';
+
 import database from '../../lib/database';
-import {hashPassword} from '../../lib/security';
+import * as security from '../../lib/security';
 
 export default database.import('User', (sequelize, DataTypes) => {
   const User = sequelize.define('auth_user', {
-    userId: {
+    id: {
       type: DataTypes.INTEGER,
       field: 'user_id',
       primaryKey: true,
@@ -33,19 +35,27 @@ export default database.import('User', (sequelize, DataTypes) => {
       defaultValue: false,
     },
   }, {
+    underscored: true,
+    freezeTableName: true,
+    createdAt: 'date_created',
+    updatedAt: 'date_updated',
     instanceMethods: {
-      /**
-       * Verifies if the specified password matches user's password.
-       *
-       * @param  {String} password Password to verify
-       * @return {Boolean} True if the password matches to stored one
-       */
-      verifyPassword(password) {
-        const passwordHash = hashPassword(password, this.salt);
-        return this.password === passwordHash;
+      toJSON() {
+        return _.omit(this.get(), ['password', 'salt']);
       },
     },
     classMethods: {},
+  });
+
+  User.beforeValidate(user => {
+    user.salt = security.generateSalt();
+  });
+
+  User.beforeCreate(user => {
+    return security.hashPassword(user.password, user.salt)
+      .then(passwordHash => {
+        user.password = passwordHash;
+      });
   });
 
   return User;

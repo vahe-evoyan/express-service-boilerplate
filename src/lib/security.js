@@ -13,7 +13,7 @@ const PBKDF_OPTIONS = {
  * @return {String}  Salt
  */
 export function generateSalt(length = 64) {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString('base64');
 }
 
 /**
@@ -24,18 +24,18 @@ export function generateSalt(length = 64) {
  * @param  {Callback} callback Callback function
  * @return {String}            Hashed passport
  */
-export function hashPassword(password, salt, callback) {
-  return crypto.pbkdf2(
-    password,
-    salt,
-    PBKDF_OPTIONS.iterations,
-    PBKDF_OPTIONS.keylength,
-    PBKDF_OPTIONS.algorithm,
-    (err, key) => {
-      if (!err) {
-        key = key.toString('hex');
-      }
-      callback(err, key);
-    },
-  );
+export function hashPassword(password, salt) {
+  return new Promise((resolve, reject) => {
+    crypto.pbkdf2(
+      password,
+      salt,
+      PBKDF_OPTIONS.iterations,
+      PBKDF_OPTIONS.keylength,
+      PBKDF_OPTIONS.algorithm,
+      (err, key) => {
+        if (err) return reject(err);
+        return resolve(key.toString('base64'));
+      },
+    );
+  });
 }

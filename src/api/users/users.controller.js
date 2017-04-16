@@ -5,6 +5,14 @@ export function index(req, res) {
     .then(users => res.status(200).json({users}));
 }
 
+/**
+ * Register a new user and authenticate the user
+ *
+ * @param  {Object} req Request
+ * @param  {Object} res Result
+ * @return {User}   User model
+ */
 export function create(req, res) {
-  return res.status(204).end();
-}
+  User.create(req.body)
+    .then(() => res.status(204).end());
+};
