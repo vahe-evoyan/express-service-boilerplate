@@ -16,11 +16,6 @@ export default database.import('User', (sequelize, DataTypes) => {
       unique: true,
       allowNull: false,
     },
-    username: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
-    },
     password: {
       type: DataTypes.CHAR(40),
       allowNull: false,
@@ -54,15 +49,22 @@ export default database.import('User', (sequelize, DataTypes) => {
   });
 
   User.beforeValidate(user => {
-    user.salt = security.generateSalt();
+    if (user.isNewRecord) {
+      user.salt = security.generateSalt();
+    }
   });
 
-  User.beforeCreate(user => {
-    return security.hashPassword(user.password, user.salt)
-      .then(passwordHash => {
-        user.password = passwordHash;
-      });
-  });
+  function beforeSave(user) {
+    if (user.changed('password')) {
+      return security.hashPassword(user.password, user.salt)
+        .then(passwordHash => {
+          user.password = passwordHash;
+        });
+    }
+  }
+
+  User.beforeCreate(beforeSave);
+  User.beforeUpdate(beforeSave);
 
   return User;
 });

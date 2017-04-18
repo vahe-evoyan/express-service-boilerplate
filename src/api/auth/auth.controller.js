@@ -13,3 +13,6 @@ export function login(req, res, next) {
     return res.status(200).json({user});
   })(req, res, next);
 }
+
+export function logout(req, res, next) {
+}
