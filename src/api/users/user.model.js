@@ -40,6 +40,12 @@ export default database.import('User', (sequelize, DataTypes) => {
     createdAt: 'date_created',
     updatedAt: 'date_updated',
     instanceMethods: {
+      verifyPassword(password) {
+        return security.hashPassword(password, this.salt)
+          .then(passwordHash => {
+            return passwordHash === this.password;
+          });
+      },
       toJSON() {
         return _.omit(this.get(), ['password', 'salt']);
       },

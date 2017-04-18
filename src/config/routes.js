@@ -1,12 +1,13 @@
 import express from 'express';
 import winston from 'winston';
 
-import {BaseApiError} from '../lib/errors';
+import {HttpError} from '../lib/errors/http';
 
 export default function(app) {
   const router = express.Router();
   /* eslint-disable global-require */
   router.use('/users', require('../api/users'));
+  router.use('/auth', require('../api/auth'));
   /* eslint-enable global-require */
   app.use('/api/v1', router);
 
@@ -27,7 +28,7 @@ export default function(app) {
    */
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     winston.error(err);
-    if (err instanceof BaseApiError) {
+    if (err instanceof HttpError) {
       res.status(err.status).json(err.toJSON());
     } else {
       res.status(500).end();

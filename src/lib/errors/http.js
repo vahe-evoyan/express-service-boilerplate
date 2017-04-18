@@ -1,27 +1,10 @@
-function ExtendableBuiltin(cls) {
-  function ExtendableBuiltin(...args) { // eslint-disable-line no-shadow
-    Reflect.apply(cls, this, args);
-  }
-  ExtendableBuiltin.prototype = Object.create(cls.prototype);
-  Reflect.setPrototypeOf(ExtendableBuiltin, cls);
+import {BaseError} from './base';
 
-  return ExtendableBuiltin;
-}
-
-
-export class BaseApiError extends ExtendableBuiltin(Error) {
+export class HttpError extends BaseError {
   constructor(message, status = 500, details = null) {
     super(message);
-    this.name = this.constructor.name;
     this.status = status;
     this.details = details;
-    this.message = message;
-
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      this.stack = (new Error(message)).stack;
-    }
   }
 
   toJSON() {
@@ -41,7 +24,7 @@ const DEFAULT_FORBIDDEN_MESSAGE = 'Current resource either does not exist'
                                   + ' or not enough permissions for'
                                   + ' accessing the resource.';
 
-export class ForbiddenError extends BaseApiError {
+export class ForbiddenError extends HttpError {
 
   constructor(message = DEFAULT_FORBIDDEN_MESSAGE, details = null) {
     super(message, 403, details);
@@ -65,22 +48,22 @@ export class ForbiddenError extends BaseApiError {
  *       "details": "No authorization token was found"
  *     }
  */
-export class UnauthorizedError extends BaseApiError {
+export class UnauthorizedError extends HttpError {
   constructor(message, details = null) {
     super(message, 401, details);
   }
 }
 
-export class BadRequestError extends BaseApiError {
+export class BadRequestError extends HttpError {
   constructor(message, details = null) {
     super(message, 400, details);
   }
 }
 
-export class NotFoundError extends BaseApiError {
+export class NotFoundError extends HttpError {
   constructor(message, details = null) {
     super(message, 404, details);
   }
 }
 
-export class ValidationError extends BadRequestError {}
+export class ValidationError extends HttpError {}

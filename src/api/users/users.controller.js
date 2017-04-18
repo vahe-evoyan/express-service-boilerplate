@@ -12,7 +12,8 @@ export function index(req, res) {
  * @param  {Object} res Result
  * @return {User}   User model
  */
-export function create(req, res) {
+export function create(req, res, next) {
   User.create(req.body)
-    .then(() => res.status(204).end());
+    .then(() => res.status(204).end())
+    .catch(err => next(err));
 };

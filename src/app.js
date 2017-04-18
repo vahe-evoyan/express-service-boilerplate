@@ -11,6 +11,7 @@ const server = http.createServer(app);
 
 require('./config/express').default(app, server);
 require('./config/routes').default(app);
+require('./config/auth').default(app);
 
 // Start server
 database.sync().then(() => {
