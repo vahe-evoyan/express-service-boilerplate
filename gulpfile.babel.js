@@ -1,5 +1,6 @@
 import gulp from 'gulp';
 import eslint from 'gulp-eslint';
+import mocha from 'gulp-mocha';
 import nodemon from 'nodemon';
 
 const SERVER_PATH = './src';
@@ -16,6 +17,17 @@ gulp.task('lint:gulpfile', () => {
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
+});
+
+gulp.task('test', function () {
+  gulp.src([`${SERVER_PATH}/**/*.spec.js`], {read: false})
+    .pipe(mocha({
+      checkLeaks: true,
+      ui: 'bdd',
+      reporter: 'spec',
+      timeout: 5000,
+      require: ['./test/mocha.init']
+    }));
 });
 
 gulp.task('serve', () => {
