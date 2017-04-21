@@ -4,7 +4,7 @@
   "description": "Boilerplate for building ExpressJS based REST services.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test"
   },
   "author": "Vahe Evoyan <vahe@evoyan.org>",
   "license": "MIT",
