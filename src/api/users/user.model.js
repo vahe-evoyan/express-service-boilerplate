@@ -37,9 +37,7 @@ export default database.import('User', (sequelize, DataTypes) => {
     instanceMethods: {
       verifyPassword(password) {
         return security.hashPassword(password, this.salt)
-          .then(passwordHash => {
-            return passwordHash === this.password;
-          });
+          .then(passwordHash => (passwordHash === this.password));
       },
       toJSON() {
         return _.omit(this.get(), ['password', 'salt']);
@@ -48,8 +46,9 @@ export default database.import('User', (sequelize, DataTypes) => {
     classMethods: {},
   });
 
-  User.beforeValidate(user => {
+  User.beforeValidate((user) => {
     if (user.isNewRecord) {
+      // eslint-disable-next-line no-param-reassign
       user.salt = security.generateSalt();
     }
   });
@@ -57,10 +56,12 @@ export default database.import('User', (sequelize, DataTypes) => {
   function beforeSave(user) {
     if (user.changed('password')) {
       return security.hashPassword(user.password, user.salt)
-        .then(passwordHash => {
+        .then((passwordHash) => {
+          // eslint-disable-next-line no-param-reassign
           user.password = passwordHash;
         });
     }
+    return Promise.resolve();
   }
 
   User.beforeCreate(beforeSave);

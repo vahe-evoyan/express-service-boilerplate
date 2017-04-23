@@ -1,5 +1,4 @@
 import passport from 'passport';
-import winston from 'winston';
 
 import {ForbiddenError} from '../../lib/errors/http';
 
@@ -14,5 +13,5 @@ export function login(req, res, next) {
   })(req, res, next);
 }
 
-export function logout(req, res, next) {
+export function logout() {
 }

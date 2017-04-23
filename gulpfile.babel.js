@@ -6,8 +6,25 @@ import nodemon from 'nodemon';
 const SERVER_PATH = './src';
 
 gulp.task('lint', () => {
-  gulp.src([`${SERVER_PATH}/**/*.js`, '!node_modules/**'])
-    .pipe(eslint())
+  gulp.src([
+    `${SERVER_PATH}/**/*.js`,
+    `!${SERVER_PATH}/**/*.spec.js`,
+    '!node_modules/**',
+  ]).pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
+
+gulp.task('lint:tests', () => {
+  gulp.src(`!${SERVER_PATH}/**/*.spec.js`)
+    .pipe(eslint({
+      plugins: ['chai-expect'],
+      envs: ['mocha'],
+      globals: ['sinon', 'expect', 'assert'],
+      rules: {
+        'no-unused-expressions': 0,
+      },
+    }))
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });
@@ -19,14 +36,14 @@ gulp.task('lint:gulpfile', () => {
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('test', function () {
+gulp.task('test', () => {
   gulp.src([`${SERVER_PATH}/**/*.spec.js`], {read: false})
     .pipe(mocha({
       checkLeaks: true,
       ui: 'bdd',
       reporter: 'spec',
       timeout: 5000,
-      require: ['./test/mocha.init']
+      require: ['./test/mocha.init'],
     }));
 });
 

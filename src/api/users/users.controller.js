@@ -18,12 +18,12 @@ export function index(req, res) {
 export function create(req, res, next) {
   User.create(req.body)
     .then(() => res.status(204).end())
-    .catch(err => {
+    .catch((err) => {
       if (err instanceof UniqueConstraintError) {
         const message = 'User with the specified email already exists';
         next(new BadRequestError(message));
       } else {
-        next(err)
+        next(err);
       }
     });
-};
+}

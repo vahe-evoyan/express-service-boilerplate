@@ -1,4 +1,4 @@
-import {BaseError} from './base';
+import BaseError from './base';
 
 export class AuthenticationError extends BaseError {}
 

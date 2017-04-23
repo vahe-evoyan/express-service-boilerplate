@@ -1,6 +1,6 @@
-import {ExtendableBuiltin} from '../utils.js';
+import {ExtendableBuiltin} from '../utils';
 
-export class BaseError extends ExtendableBuiltin(Error) {
+export default class BaseError extends ExtendableBuiltin(Error) {
   constructor(message) {
     super(message);
     this.name = this.constructor.name;

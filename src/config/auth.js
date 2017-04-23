@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import passport from 'passport';
 import {Strategy} from 'passport-local';
 
@@ -13,10 +12,10 @@ import {
  * Define authentication strategy
  */
 function authenticate(email, password) {
-  return User.findOne({email}).then(user => {
+  return User.findOne({email}).then((user) => {
     if (!user) throw new IncorrectUsernameError();
     return user.verifyPassword(password)
-      .then(valid => {
+      .then((valid) => {
         if (!valid) throw new IncorrectPasswordError();
         return user;
       });
@@ -25,11 +24,11 @@ function authenticate(email, password) {
 
 passport.use(new Strategy({
   usernameField: 'email',
-  passwordField: 'password'
+  passwordField: 'password',
 }, (email, password, done) => {
   authenticate(email, password)
     .then(user => done(null, user))
-    .catch(err => {
+    .catch((err) => {
       if (err instanceof AuthenticationError) {
         done(null, false, err);
       } else {

@@ -16,14 +16,13 @@ const authController = proxyquire
     express: {
       Router() {
         return routerStub;
-      }
+      },
     },
-    './auth.controller': authControllerStub
+    './auth.controller': authControllerStub,
   });
 
 
 describe('Auth API Router:', () => {
-
   it('should return an express router instance', () => {
     expect(authController).to.equal(routerStub);
   });

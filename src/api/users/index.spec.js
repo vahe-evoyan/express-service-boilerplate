@@ -16,14 +16,13 @@ const usersController = proxyquire
     express: {
       Router() {
         return routerStub;
-      }
+      },
     },
-    './users.controller': usersControllerStub
+    './users.controller': usersControllerStub,
   });
 
 
 describe('Users API Router:', () => {
-
   it('should return an express router instance', () => {
     expect(usersController).to.equal(routerStub);
   });

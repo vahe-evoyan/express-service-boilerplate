@@ -7,3 +7,5 @@ export function ExtendableBuiltin(cls) {
 
   return ExtendableBuiltin;
 }
+
+export function noop() {}
