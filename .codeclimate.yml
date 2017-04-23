@@ -1,4 +1,10 @@
-eslint:
-  enabled: true
-  config:
-    config: .eslintrc
+engines:
+  eslint:
+    enabled: true
+    config:
+      config: .eslintrc
+ratings:
+  paths:
+    - src/**/*.js
+exclude_paths:
+  - ".spec.js"
