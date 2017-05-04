@@ -24,9 +24,9 @@
     "gulp-eslint": "^3.0.1",
     "gulp-mocha": "^4.3.0",
     "js-yaml": "^3.8.3",
+    "merge2": "^1.0.3",
     "nodemon": "^1.11.0",
     "proxyquire": "^1.7.11",
-    "run-sequence": "^1.2.2",
     "sinon": "^2.1.0",
     "sinon-chai": "^2.9.0",
     "sqlite3": "^3.1.8"

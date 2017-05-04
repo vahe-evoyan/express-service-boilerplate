@@ -2,7 +2,7 @@ import gulp from 'gulp';
 import eslint from 'gulp-eslint';
 import mocha from 'gulp-mocha';
 import nodemon from 'nodemon';
-import runSequence from 'run-sequence';
+import merge from 'merge2';
 
 import * as swagger from './scripts/gulp.helper';
 
@@ -61,26 +61,15 @@ gulp.task('serve', () => {
   });
 });
 
-gulp.task('docs:definitions', () => {
-  return gulp.src(`${SPECS_PATH}/definitions/**/*.yaml`)
-    .pipe(swagger.merge('definitions'))
-    .pipe(gulp.dest(`${TEMP_PATH}/spec/.tmp`));
-});
-
-gulp.task('docs:paths', () => {
-  return gulp.src(`${SPECS_PATH}/paths/**/*.yaml`)
-    .pipe(swagger.merge('paths'))
-    .pipe(gulp.dest(`${TEMP_PATH}/spec/.tmp`));
-});
 
 gulp.task('docs:swagger', () => {
-  return gulp.src([
-    `${SPECS_PATH}/swagger.yaml`,
-    `${TEMP_PATH}/spec/.tmp/*.yaml`
+  return merge(gulp.src(`${SPECS_PATH}/swagger.yaml`, {buffer: false}), [
+    gulp.src(`${SPECS_PATH}/definitions/**/*.yaml`, {buffer: false})
+      .pipe(swagger.merge('definitions')),
+    gulp.src(`${SPECS_PATH}/paths/**/*.yaml`, {buffer: false})
+      .pipe(swagger.merge('paths')),
   ]).pipe(swagger.concat('swagger.yaml'))
     .pipe(gulp.dest(`${TEMP_PATH}/spec`));
 });
 
-gulp.task('docs', () => {
-  return runSequence(['docs:definitions', 'docs:paths'], 'docs:swagger');
-});
+gulp.task('docs', ['docs:swagger'], () => {});
