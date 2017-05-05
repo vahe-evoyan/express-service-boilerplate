@@ -1,0 +1,239 @@
+swagger: "2.0"
+info:
+  version: "2.1"
+  title: "REST API"
+  contact:
+    name: "Vahe Evoyan"
+    url: "https://github.com/vahe-evoyan/express-service-boilerplate"
+    email: "vahe@evoyan.org"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+  x-logo:
+    url: 'https://apis.guru/openapi-template/logo.png'
+    backgroundColor: '#0033A0'
+  description: |
+    # Introduction
+    TBD.
+
+    # Authentication
+    TBD
+
+    <!-- ReDoc-Inject: <security-definitions> -->
+
+host: "api.example.com"
+basePath: "/v1"
+schemes:
+  - "https"
+x-servers:
+  - url: //api.example.com/v1
+    description: Live Server
+  - url: //api-sandbox.example.com/v1
+    description: Sandbox Server
+produces:
+  - "application/json"
+consumes:
+  - "application/json"
+
+tags:
+  - name: Users
+    description: |
+      A User represents a person who can login to the system, and take actions
+      subject to their granted permissions.
+
+securityDefinitions:
+  JWT:
+    description: |
+      You can create a JSON Web Token (JWT) via our Sessions resource.
+    type: basic
+
+responses:
+  AccessForbidden:
+    description: "Access forbidden, invalid API-KEY was used"
+    schema:
+      $ref: "#/definitions/Error"
+  NotFound:
+    description: "Resource was not found"
+    schema:
+      $ref: "#/definitions/Error"
+  Conflict:
+    description: "Conflict"
+    schema:
+      $ref: "#/definitions/Error"
+  InvalidDataError:
+    description: "Invalid data was sent"
+    schema:
+      $ref: "#/definitions/InvalidError"
+
+parameters:
+  resourceId:
+    name: id
+    in: path
+    description: The resource identifier string
+    type: string
+    required: true
+  collectionLimit:
+    name: limit
+    in: query
+    description: The collection items limit
+    type: integer
+    minimum: 0
+    maximum: 1000
+  collectionOffset:
+    name: offset
+    in: query
+    description: The collection items offset
+    type: integer
+    minimum: 0
+  mediaType:
+    name: Accept
+    in: header
+    type: string
+    enum:
+      - application/json
+    default: application/json
+    description: The response media type
+
+headers:
+  Pagination-Total:
+    description: Total items count
+    type: integer
+  Pagination-Limit:
+    description: Items per page limit
+    type: integer
+  Pagination-Offset:
+    description: Pagination offset
+    type: integer
+paths:
+  users: |
+    get:
+      tags:
+        - Users
+      summary: Retrieve a list of users
+      description: |
+        Retrieve a list of users
+      parameters:
+        - $ref: "#/parameters/collectionLimit"
+        - $ref: "#/parameters/collectionOffset"
+      responses:
+        200:
+          description: A list of users was retrieved successfully
+          headers:
+            Pagination-Total:
+              $ref: "#/headers/Pagination-Total"
+            Pagination-Limit:
+              $ref: "#/headers/Pagination-Limit"
+            Pagination-Offset:
+              $ref: "#/headers/Pagination-Offset"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/User"
+        401:
+          $ref: "#/responses/AccessForbidden"
+    post:
+      tags:
+        - Users
+      summary: Create an user
+      description: |
+        Create an user
+      parameters:
+        - name: body
+          in: body
+          description: User resource
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        201:
+          description: User was created
+          schema:
+            $ref: "#/definitions/User"
+        401:
+          $ref: "#/responses/AccessForbidden"
+        422:
+          description: Invalid data was sent
+          schema:
+            $ref: "#/definitions/InvalidError"
+definitions:
+  Error: |-
+    type: object
+    properties:
+      status:
+        type: integer
+        minimum: 100
+        maximum: 600
+      error:
+        type: string
+  InvalidError: |
+    allOf:
+      -
+        $ref: "#/definitions/Error"
+      -
+        type: object
+        properties:
+          details:
+            type: array
+            items:
+              type: string
+  ResourceId: |
+    type: string
+    description: The resource ID. Defaults to UUID v4
+    maxLength: 50
+    example: "4f6cf35x-2c4y-483z-a0a9-158621f77a21"
+  User: |
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      id:
+        description: The user identifier string
+        readOnly: true
+        allOf:
+          - $ref: "#/definitions/ResourceId"
+      email:
+        description: The user email
+        type: string
+        format: email
+        maxLength: 100
+      password:
+        description: User's password
+      salt:
+        description: Salt used in password hash algorithm
+      status:
+        description: The user status
+        type: string
+        enum:
+          - "active"
+          - "inactive"
+          - "pending-confirmation"
+        readOnly: true
+      _links:
+        type: array
+        description: The links related to resource
+        readOnly: true
+        minItems: 1
+        maxItems: 1
+        items:
+          - $ref: "#/definitions/SelfLink"
+  NewLink: |-
+    type: object
+    properties:
+      href:
+        description: The link URL
+        type: string
+    required:
+      - href
+  SelfLink: |
+    type: object
+    allOf:
+      - $ref: "#/definitions/NewLink"
+    properties:
+      rel:
+        description: The link type
+        type: string
+        enum:
+          - self
+    required:
+      - rel
