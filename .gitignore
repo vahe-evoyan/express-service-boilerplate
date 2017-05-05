@@ -2,6 +2,7 @@
 node_modules
 .tmp
 .idea
+.publish
 config/local.env.js
 npm-debug.log
 coverage

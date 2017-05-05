@@ -23,6 +23,7 @@
     "eslint-plugin-react": "^6.10.3",
     "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
+    "gulp-gh-pages": "^0.5.4",
     "gulp-mocha": "^4.3.0",
     "gulp-util": "^3.0.8",
     "js-yaml": "^3.8.3",

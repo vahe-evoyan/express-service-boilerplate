@@ -94,7 +94,7 @@ export function merge(name) {
       let yamlContents = yaml.safeLoad(contents);
       let stem = path.basename(file.path, '.yaml');
       gutil.log(`Loading ${name} from ${stem}`);
-      joinedContents[stem] = contents;
+      joinedContents[stem] = yamlContents;
       return cb();
     });
   }, function(cb) {
@@ -112,6 +112,7 @@ export function validate() {
       sway.create({definition})
         .then((swagger) => {
           displayValidationResults(swagger.validate());
+          file.contents = new Buffer(contents);
           this.push(file);
           return cb();
         }, (error) => {

@@ -3,6 +3,7 @@ import eslint from 'gulp-eslint';
 import mocha from 'gulp-mocha';
 import nodemon from 'nodemon';
 import merge from 'merge2';
+import pages from 'gulp-gh-pages';
 
 import * as swagger from './scripts/gulp.helper';
 
@@ -70,6 +71,13 @@ gulp.task('docs:swagger', () => {
   ]).pipe(swagger.concat('swagger.yaml'))
     .pipe(swagger.validate())
     .pipe(gulp.dest(`${TEMP_PATH}/spec`));
+});
+
+gulp.task('docs:deploy', () => {
+  return gulp.src([
+    `${TEMP_PATH}/spec/*`,
+    `${SPECS_PATH}/template/*`,
+  ]).pipe(pages());
 });
 
 gulp.task('docs', ['docs:swagger'], () => {});
