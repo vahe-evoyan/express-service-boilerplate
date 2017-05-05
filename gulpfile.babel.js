@@ -61,7 +61,6 @@ gulp.task('serve', () => {
   });
 });
 
-
 gulp.task('docs:swagger', () => {
   return merge(gulp.src(`${SPECS_PATH}/swagger.yaml`, {buffer: false}), [
     gulp.src(`${SPECS_PATH}/definitions/**/*.yaml`, {buffer: false})
@@ -69,6 +68,7 @@ gulp.task('docs:swagger', () => {
     gulp.src(`${SPECS_PATH}/paths/**/*.yaml`, {buffer: false})
       .pipe(swagger.merge('paths')),
   ]).pipe(swagger.concat('swagger.yaml'))
+    .pipe(swagger.validate())
     .pipe(gulp.dest(`${TEMP_PATH}/spec`));
 });
 
