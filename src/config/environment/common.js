@@ -1,3 +1,0 @@
-// Common configurations
-// =====================
-module.exports = {};
