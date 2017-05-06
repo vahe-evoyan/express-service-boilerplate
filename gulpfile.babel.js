@@ -25,8 +25,8 @@ const scripts = {
     `!${SERVER_PATH}/**/*.spec.js`,
     '!node_modules/**',
   ],
-  tests: [`!${SERVER_PATH}/**/*.spec.js`],
-  integrationTests: [`!${SERVER_PATH}/**/*.integration.js`],
+  tests: [`${SERVER_PATH}/**/*.spec.js`],
+  integrationTests: [`${SERVER_PATH}/**/*.integration.js`],
   helpers: ['gulpfile.babel.js', `${HELPERS_PATH}/**/*.js`],
 };
 
