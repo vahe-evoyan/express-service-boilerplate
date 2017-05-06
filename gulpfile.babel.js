@@ -4,11 +4,12 @@ import mocha from 'gulp-mocha';
 import nodemon from 'nodemon';
 import merge from 'merge2';
 import pages from 'gulp-gh-pages';
-import runSequence from 'run-sequence';
 import istanbul from 'gulp-istanbul';
 import coverageEnforcer from 'gulp-istanbul-enforcer';
 import {Instrumenter} from 'isparta';
 import lazypipe from 'lazypipe';
+import runSequence from 'run-sequence';
+import del from 'del';
 
 import * as swagger from './scripts/gulp.helper';
 
@@ -27,7 +28,7 @@ const scripts = {
   tests: [`!${SERVER_PATH}/**/*.spec.js`],
   integrationTests: [`!${SERVER_PATH}/**/*.integration.js`],
   helpers: ['gulpfile.babel.js', `${HELPERS_PATH}/**/*.js`],
-}
+};
 
 gulp.task('lint', () => {
   gulp.src(scripts.main).pipe(eslint())
@@ -67,38 +68,38 @@ const mochaTests = lazypipe()
 
 gulp.task('test', () => {
   gulp.src(scripts.tests, {read: false})
-    pipe(mochaTests());
+    .pipe(mochaTests());
 });
 
 const coverage = lazypipe()
   .pipe(istanbul.writeReports, {
-      dir: COVERAGE_PATH,
-      reportOpts: {dir: COVERAGE_PATH},
-      reporters: ['text', 'text-summary', 'json', 'html']
+    dir: COVERAGE_PATH,
+    reportOpts: {dir: COVERAGE_PATH},
+    reporters: ['text', 'text-summary', 'json', 'html'],
   })
   .pipe(coverageEnforcer, {
-      thresholds: {
-          statements: 80,
-          branches: 50,
-          lines: 80,
-          functions: 50
-      },
-      coverageDirectory: COVERAGE_PATH,
-      rootDirectory : ''
+    thresholds: {
+      statements: 80,
+      branches: 50,
+      lines: 80,
+      functions: 50,
+    },
+    coverageDirectory: COVERAGE_PATH,
+    rootDirectory: '',
   });
 
 
 gulp.task('coverage:setup', () => {
-  return gulp.src(scripts.main)
+  gulp.src(scripts.main)
     .pipe(istanbul({
       instrumenter: Instrumenter,
-      includeUntested: true
+      includeUntested: true,
     }))
     .pipe(istanbul.hookRequire());
 });
 
 gulp.task('coverage', ['coverage:setup'], () => {
-  return gulp.src(`${SERVER_PATH}/**/*.spec.js`, {read: false})
+  gulp.src(`${SERVER_PATH}/**/*.spec.js`, {read: false})
     .pipe(mochaTests())
     .pipe(coverage());
 });
@@ -112,8 +113,12 @@ gulp.task('serve', () => {
   });
 });
 
-gulp.task('docs:swagger', () => {
-  return merge(gulp.src(`${SPECS_PATH}/swagger.yaml`, {buffer: false}), [
+gulp.task('specs:clean', () => {
+  del([`${TEMP_PATH}/spec/**/*`], {dot: true});
+});
+
+gulp.task('specs:swagger', () => {
+  merge(gulp.src(`${SPECS_PATH}/swagger.yaml`, {buffer: false}), [
     gulp.src(`${SPECS_PATH}/definitions/**/*.yaml`, {buffer: false})
       .pipe(swagger.merge('definitions')),
     gulp.src(`${SPECS_PATH}/paths/**/*.yaml`, {buffer: false})
@@ -123,11 +128,13 @@ gulp.task('docs:swagger', () => {
     .pipe(gulp.dest(`${TEMP_PATH}/spec`));
 });
 
-gulp.task('docs:deploy', () => {
-  return gulp.src([
+gulp.task('specs:deploy', ['specs:swagger'], () => {
+  gulp.src([
     `${TEMP_PATH}/spec/*`,
     `${SPECS_PATH}/template/*`,
   ]).pipe(pages());
 });
 
-gulp.task('docs', ['docs:swagger'], () => {});
+gulp.task('specs', () => {
+  runSequence('specs:clean', 'specs:swagger');
+});
