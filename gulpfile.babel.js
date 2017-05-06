@@ -4,25 +4,39 @@ import mocha from 'gulp-mocha';
 import nodemon from 'nodemon';
 import merge from 'merge2';
 import pages from 'gulp-gh-pages';
+import runSequence from 'run-sequence';
+import istanbul from 'gulp-istanbul';
+import coverageEnforcer from 'gulp-istanbul-enforcer';
+import {Instrumenter} from 'isparta';
+import lazypipe from 'lazypipe';
 
 import * as swagger from './scripts/gulp.helper';
 
 const SERVER_PATH = './src';
+const HELPERS_PATH = './scripts';
 const SPECS_PATH = './spec';
 const TEMP_PATH = './.tmp';
+const COVERAGE_PATH = './coverage';
 
-gulp.task('lint', () => {
-  gulp.src([
+const scripts = {
+  main: [
     `${SERVER_PATH}/**/*.js`,
     `!${SERVER_PATH}/**/*.spec.js`,
     '!node_modules/**',
-  ]).pipe(eslint())
+  ],
+  tests: [`!${SERVER_PATH}/**/*.spec.js`],
+  integrationTests: [`!${SERVER_PATH}/**/*.integration.js`],
+  helpers: ['gulpfile.babel.js', `${HELPERS_PATH}/**/*.js`],
+}
+
+gulp.task('lint', () => {
+  gulp.src(scripts.main).pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });
 
 gulp.task('lint:tests', () => {
-  gulp.src(`!${SERVER_PATH}/**/*.spec.js`)
+  gulp.src(scripts.tests)
     .pipe(eslint({
       plugins: ['chai-expect'],
       envs: ['mocha'],
@@ -35,22 +49,58 @@ gulp.task('lint:tests', () => {
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('lint:gulpfile', () => {
-  gulp.src('gulpfile.babel.js')
+gulp.task('lint:helpers', () => {
+  gulp.src(scripts.helpers)
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });
 
+const mochaTests = lazypipe()
+  .pipe(mocha, {
+    checkLeaks: true,
+    ui: 'bdd',
+    reporter: 'spec',
+    timeout: 5000,
+    require: ['./test/mocha.init'],
+  });
+
 gulp.task('test', () => {
-  gulp.src([`${SERVER_PATH}/**/*.spec.js`], {read: false})
-    .pipe(mocha({
-      checkLeaks: true,
-      ui: 'bdd',
-      reporter: 'spec',
-      timeout: 5000,
-      require: ['./test/mocha.init'],
-    }));
+  gulp.src(scripts.tests, {read: false})
+    pipe(mochaTests());
+});
+
+const coverage = lazypipe()
+  .pipe(istanbul.writeReports, {
+      dir: COVERAGE_PATH,
+      reportOpts: {dir: COVERAGE_PATH},
+      reporters: ['text', 'text-summary', 'json', 'html']
+  })
+  .pipe(coverageEnforcer, {
+      thresholds: {
+          statements: 80,
+          branches: 50,
+          lines: 80,
+          functions: 50
+      },
+      coverageDirectory: COVERAGE_PATH,
+      rootDirectory : ''
+  });
+
+
+gulp.task('coverage:setup', () => {
+  return gulp.src(scripts.main)
+    .pipe(istanbul({
+      instrumenter: Instrumenter,
+      includeUntested: true
+    }))
+    .pipe(istanbul.hookRequire());
+});
+
+gulp.task('coverage', ['coverage:setup'], () => {
+  return gulp.src(`${SERVER_PATH}/**/*.spec.js`, {read: false})
+    .pipe(mochaTests())
+    .pipe(coverage());
 });
 
 gulp.task('serve', () => {
