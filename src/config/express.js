@@ -1,7 +1,10 @@
 import shrinkRay from 'shrink-ray';
 import bodyParser from 'body-parser';
+import expressJwt from 'express-jwt';
 import lusca from 'lusca';
 import cors from 'cors';
+
+import config from './environment';
 
 export default function(app) {
   const env = app.get('env');
@@ -14,6 +17,12 @@ export default function(app) {
       req.rawBody = buf;
     },
   }));
+  app.use(expressJwt({secret: config.jwt.secret})
+    .unless({
+      path: [
+        {url: /\/auth\/?$/ig, methods: ['POST']}
+      ],
+    }));
 
   if (env !== 'test') {
     app.use(lusca({

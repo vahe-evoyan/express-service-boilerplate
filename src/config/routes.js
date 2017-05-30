@@ -1,7 +1,7 @@
 import express from 'express';
 import winston from 'winston';
 
-import {HttpError} from '../lib/errors/http';
+import {HttpError, UnauthorizedError} from '../lib/errors/http';
 
 export default function(app) {
   const router = express.Router();
@@ -28,6 +28,12 @@ export default function(app) {
    */
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     winston.error(err);
+    if (err.name === 'UnauthorizedError') {
+      err = new UnauthorizedError(
+        'Authentication token is either invalid or expired.',
+        err.message
+      );
+    }
     if (err instanceof HttpError) {
       res.status(err.status).json(err.toJSON());
     } else {

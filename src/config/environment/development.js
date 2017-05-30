@@ -8,4 +8,9 @@ module.exports = {
       storage: './dev.db',
     },
   },
+
+  jwt: {
+    secret: 'secret',
+    expires: '1y',
+  },
 };

@@ -42,6 +42,9 @@ export default database.import('User', (sequelize, DataTypes) => {
       toJSON() {
         return _.omit(this.get(), ['password', 'salt']);
       },
+      token() {
+        return _.pick(this.get(), ['id']);
+      },
     },
     classMethods: {},
   });

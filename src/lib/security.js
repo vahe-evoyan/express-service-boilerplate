@@ -1,9 +1,17 @@
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+
+import config from '../config/environment';
 
 const PBKDF_OPTIONS = {
   iterations: 2000,
   keylength: 128,
   algorithm: 'sha512',
+};
+
+const JWT_OPTIONS = {
+  expiresIn: config.jwt.expires,
+  issuer: config.jwt.issuer,
 };
 
 /**
@@ -38,4 +46,16 @@ export function hashPassword(password, salt) {
       },
     );
   });
+}
+
+/**
+ * Create JWT token for given user
+ *
+ * @return {String}      JWT token
+ */
+export function createJwtToken(payload, options, secret = config.jwt.secret) {
+  let jwtOptions = {...JWT_OPTIONS, ...options};
+  jwtOptions.jwtid = generateSalt(32);
+  console.log(jwtOptions);
+  return jwt.sign(payload, secret, jwtOptions);
 }

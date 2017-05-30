@@ -1,4 +1,5 @@
 /* eslint import/no-dynamic-require:0 global-require:0 */
+import _ from 'lodash';
 
 const base = {
   env: process.env.NODE_ENV,
@@ -18,6 +19,12 @@ const base = {
       dialect: 'mysql',
     },
   },
+
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    issuer: 'example.com',
+    expires: '2h',
+  },
 };
 
 // Export the config object based on the NODE_ENV
@@ -25,4 +32,4 @@ const base = {
 const env = require(`./${process.env.NODE_ENV}.js`) || {};
 const common = require('./common');
 
-module.exports = {...base, ...common, ...env};
+module.exports = _.merge({}, base, common, env);
