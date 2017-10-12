@@ -11,7 +11,7 @@ factory.setAdapter(adapter);
 factory.define('User', User, {
   email: factory.sequence('user.email', n => `user${n}@mailinator.com`),
   password: factory.chance('word', {syllables: 4}),
-  status: 'inactive',
+  active: false,
 });
 
 describe('Users', () => {
@@ -29,13 +29,16 @@ describe('Users', () => {
         return Promise.all(promises);
       })
       .then((users) => {
-        request(app)
+        return request(app)
           .get('/api/v1/users')
           .set('Accept', 'application/json')
           .expect(200)
           .then((res) => {
-            assert.exists(res.body.users);
-            assert(res.body.users.length, 5);
+            expect(res.body).to.have.property('users');
+            const users = res.body.users;
+            expect(users).to.have.lengthOf(5);
+            users.should.all.not.have.property('password');
+            users.should.all.not.have.property('salt');
           })
           .then(done);
       })

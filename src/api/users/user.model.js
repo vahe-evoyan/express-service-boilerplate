@@ -34,17 +34,16 @@ export default database.import('User', (sequelize, DataTypes) => {
     freezeTableName: true,
     createdAt: 'date_created',
     updatedAt: 'date_updated',
-    instanceMethods: {
-      verifyPassword(password) {
-        return security.hashPassword(password, this.salt)
-          .then(passwordHash => (passwordHash === this.password));
-      },
-      toJSON() {
-        return _.omit(this.get(), ['password', 'salt']);
-      },
-    },
-    classMethods: {},
   });
+
+  User.prototype.verifyPassword = function(password) {
+    return security.hashPassword(password, this.salt)
+      .then(passwordHash => (passwordHash === this.password));
+  };
+
+  User.prototype.toJSON = function() {
+    return _.omit(this.get(), ['password', 'salt']);
+  };
 
   User.beforeValidate((user) => {
     if (user.isNewRecord) {
