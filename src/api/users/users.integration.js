@@ -16,11 +16,10 @@ factory.define('User', User, {
 
 describe('Users', () => {
   beforeEach((done) => {
-    User.destroy({truncate: true}).then(done);
-  });
-
-  it('should list ALL users on /users GET', (done) => {
-    factory.buildMany('User', 5)
+    User.destroy({truncate: true})
+      .then(() => {
+        return factory.buildMany('User', 5);
+      })
       .then((users) => {
         const promises = [];
         users.forEach(user => {
@@ -28,20 +27,22 @@ describe('Users', () => {
         });
         return Promise.all(promises);
       })
-      .then((users) => {
-        return request(app)
-          .get('/api/v1/users')
-          .set('Accept', 'application/json')
-          .expect(200)
-          .then((res) => {
-            expect(res.body).to.have.property('users');
-            const users = res.body.users;
-            expect(users).to.have.lengthOf(5);
-            users.should.all.not.have.property('password');
-            users.should.all.not.have.property('salt');
-          })
-          .then(done);
+      .then(() => done());
+  });
+
+  it('should list ALL users on /users GET', (done) => {
+    request(app)
+      .get('/api/v1/users')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then((res) => {
+        expect(res.body).to.have.property('users');
+        const users = res.body.users;
+        expect(users).to.have.lengthOf(5);
+        users.should.all.not.have.property('password');
+        users.should.all.not.have.property('salt');
       })
+      .then(done)
       .catch(done);
   });
 });
