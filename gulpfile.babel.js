@@ -26,7 +26,10 @@ const scripts = {
     '!node_modules/**',
   ],
   tests: [`${SERVER_PATH}/**/*.spec.js`],
-  integrationTests: [`${SERVER_PATH}/**/*.integration.js`],
+  integrationTests: [
+    `${SERVER_PATH}/**/*.integration.js`,
+    './test/mocha.hooks.js',
+  ],
   helpers: ['gulpfile.babel.js', `${HELPERS_PATH}/**/*.js`],
 };
 
@@ -62,13 +65,27 @@ const mochaTests = lazypipe()
     checkLeaks: true,
     ui: 'bdd',
     reporter: 'spec',
-    timeout: 5000,
+    timeout: 120000,
     require: ['./test/mocha.init'],
   });
 
-gulp.task('test', () => {
-  gulp.src(scripts.tests, {read: false})
+
+gulp.task('env:test', () => {
+  process.env.NODE_ENV = 'test';
+});
+
+gulp.task('test:unit', ['env:test'], () => {
+  return gulp.src(scripts.tests, {read: false})
     .pipe(mochaTests());
+});
+
+gulp.task('test:integration', ['env:test'], () => {
+  return gulp.src(scripts.integrationTests)
+    .pipe(mochaTests());
+});
+
+gulp.task('test', (cb) => {
+  return runSequence('test:unit', 'test:integration', cb);
 });
 
 const coverage = lazypipe()

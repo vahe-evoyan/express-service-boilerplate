@@ -17,6 +17,7 @@ require('./config/auth').default(app);
 database.sync().then(() => {
   app.mainServer = server.listen(
     config.port, config.ip, () => {
+      app.emit('ready');
       winston.info(
         'Server listening on %d, in %s mode',
         config.port,
