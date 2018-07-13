@@ -16,6 +16,35 @@ factory.define('User', User, {
 });
 
 describe('Users', () => {
+  it('should not include password and salt', (done) => {
+    factory.attrs('User')
+      .then((userAttrs) => {
+        return User.create(userAttrs)
+          .then((user) => {
+            expect(user.toJSON()).to.not.have.property('password');
+            expect(user.toJSON()).to.not.have.property('salt');
+          });
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('should password be verifiable', (done) => {
+    factory.attrs('User')
+      .then((userAttrs) => {
+        return User.create(userAttrs)
+          .then((user) => {
+            const {password} = userAttrs;
+            expect(user.verifyPassword(password)).to.eventually.be.true;
+            expect(user.verifyPassword('password')).to.eventually.be.false;
+          });
+      })
+      .then(done)
+      .catch(done);
+  });
+});
+
+describe('Users API', () => {
   beforeEach((done) => {
     User.drop()
       .then(() => User.sync())
@@ -136,6 +165,31 @@ describe('Users', () => {
       })
       .then((users) => {
         expect(users).to.have.lengthOf(4);
+      })
+      .then(done)
+      .catch(done);
+  });
+
+  it('should fail when user with same email created', (done) => {
+    User.findOne({where: {id: '3'}})
+      .then((user) => {
+        return factory.attrs('User')
+          .then((userAttrs) => {
+            userAttrs.email = user.email;
+            return request(app)
+              .post('/api/v1/users/')
+              .send(userAttrs)
+              .set('Accept', 'application/json')
+              .expect(400);
+          });
+      })
+      .then((res) => {
+        expect(res.body).to.have.property('error');
+        expect(res.body.error).to.deep.equal({
+          name: 'BadRequestError',
+          message: 'User with the specified email already exists',
+          status: 400
+        });
       })
       .then(done)
       .catch(done);

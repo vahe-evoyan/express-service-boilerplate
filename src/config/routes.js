@@ -29,7 +29,7 @@ export default function(app) {
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     winston.error(err);
     if (err instanceof HttpError) {
-      res.status(err.status).json(err.toJSON());
+      res.status(err.status).json({error: err.toJSON()});
     } else {
       res.status(500).end();
     }

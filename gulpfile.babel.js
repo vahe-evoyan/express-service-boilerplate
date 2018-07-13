@@ -23,6 +23,8 @@ const scripts = {
   main: [
     `${SERVER_PATH}/**/*.js`,
     `!${SERVER_PATH}/**/*.spec.js`,
+    `!${SERVER_PATH}/**/*.integration.js`,
+    `!${SERVER_PATH}/test/mocha.hooks.js`,
     '!node_modules/**',
   ],
   tests: [`${SERVER_PATH}/**/*.spec.js`],
@@ -69,7 +71,6 @@ const mochaTests = lazypipe()
     require: ['./test/mocha.init'],
   });
 
-
 gulp.task('env:test', () => {
   process.env.NODE_ENV = 'test';
 });
@@ -80,12 +81,15 @@ gulp.task('test:unit', ['env:test'], () => {
 });
 
 gulp.task('test:integration', ['env:test'], () => {
-  return gulp.src(scripts.integrationTests)
+  return gulp.src(scripts.integrationTests, {read: false})
     .pipe(mochaTests());
 });
 
 gulp.task('test', (cb) => {
-  return runSequence('test:unit', 'test:integration', cb);
+  return runSequence(
+    'test:unit',
+    'test:integration',
+    cb);
 });
 
 const coverage = lazypipe()
@@ -115,8 +119,8 @@ gulp.task('coverage:setup', () => {
     .pipe(istanbul.hookRequire());
 });
 
-gulp.task('coverage', ['coverage:setup'], () => {
-  gulp.src(`${SERVER_PATH}/**/*.spec.js`, {read: false})
+gulp.task('coverage', ['coverage:setup', 'env:test'], () => {
+  gulp.src(scripts.integrationTests, {read: false})
     .pipe(mochaTests())
     .pipe(coverage());
 });
